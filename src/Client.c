@@ -26,7 +26,6 @@
 //이 값은 특별한 일이 없는 한 변하지 않습니다.
 #define MULTICAST_IP "225.0.0.2"
 #define MULTICAST_PORT 50002
-#define REMOTEIP "255.255.255.255"
 
 // 소켓 함수 오류 출력 후 종료
 void err_quit(char *msg)
@@ -182,14 +181,29 @@ DWORD WINAPI SenderThread(LPVOID arg)
 		//공지태그를 붙인경우 전송하지 않는다.
 		if (strncmp(buffer, "[notice]", 8) == 0)
 		{
-			printf("공지사항 태그는 직접 사용할 수 없습니다. \n");
+			printf("오류: 공지사항 태그는 사용할 수 없습니다. \n");
 			continue;
 		}
 
 		// 데이터 보내기
 		retval = sendto(sock, (char*)&uid, sizeof(uid), 0, (SOCKADDR *)&remoteaddr, sizeof(remoteaddr));
+		if (retval == SOCKET_ERROR)
+		{
+			err_display("아이디 sendto()");
+			break;
+		}
 		retval = sendto(sock, nickName, (int)strlen(nickName) + 1, 0, (SOCKADDR *)&remoteaddr, sizeof(remoteaddr));
+		if (retval == SOCKET_ERROR)
+		{
+			err_display("아이디 sendto()");
+			break;
+		}
 		retval = sendto(sock, buffer, (int)strlen(buffer) + 1, 0, (SOCKADDR *)&remoteaddr, sizeof(remoteaddr));
+		if (retval == SOCKET_ERROR)
+		{
+			err_display("아이디 sendto()");
+			break;
+		}
 	}
 
 	// closesocket()
