@@ -179,6 +179,13 @@ DWORD WINAPI SenderThread(LPVOID arg)
 		// 데이터 입력
 		gets_s(buffer, sizeof(buffer));
 
+		//공지태그를 붙인경우 전송하지 않는다.
+		if (strncmp(buffer, "[notice]", 8) == 0)
+		{
+			printf("공지사항 태그는 직접 사용할 수 없습니다. \n");
+			continue;
+		}
+
 		// 데이터 보내기
 		retval = sendto(sock, (char*)&uid, sizeof(uid), 0, (SOCKADDR *)&remoteaddr, sizeof(remoteaddr));
 		retval = sendto(sock, nickName, (int)strlen(nickName) + 1, 0, (SOCKADDR *)&remoteaddr, sizeof(remoteaddr));
@@ -278,11 +285,12 @@ DWORD WINAPI ReceiverThread(LPVOID arg)
 	return 0;
 }
 
-
 //메인 함수
 int main()
 {
 	int retval;
+
+	system("mode con cols=80 lines=30");
 
 	// 윈속 초기화
 	WSADATA wsa;
