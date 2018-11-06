@@ -4,6 +4,24 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
+//글자색 변경할 때 숫자 대신 사용
+#define RESET 7
+#define DARK_BLUE 1
+#define DARK_GREEN 2
+#define BRIGHT_BLUE 3
+#define DARK_RED 4
+#define DARK_PURPLE 5
+#define DARK_YELLOW 6
+#define DARK_WHITE 7
+#define GRAY 8
+#define BLUE 9
+#define GREEN 10
+#define SKY_BLUE 11
+#define RED 12
+#define PURPLE 13
+#define YELLOW 14
+#define WHITE 15
+
 //우리 프로젝트에서 사용할 멀티캐스트 대표IP, PORT번호입니다.
 //이 값은 특별한 일이 없는 한 변하지 않습니다.
 #define MULTICAST_IP "225.0.0.2"
@@ -119,6 +137,13 @@ int importSettings(_Out_ SETTINGS *sets)
 	return 0;
 }
 
+//콘솔의 글자색을 변경한다.
+int textcolor(unsigned short color_number)
+{
+	int retval = SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color_number);
+	return retval;
+}
+
 
 //멀티캐스트 송신 함수
 DWORD WINAPI SenderThread(LPVOID arg)
@@ -230,8 +255,16 @@ DWORD WINAPI ReceiverThread(LPVOID arg)
 			break;
 		}
 
-		// 받은 데이터 출력
-		printf("%s(%d): %s\n", nickName, uid, buffer);
+		//받은 파일을 검사한다
+		if (strncmp(buffer, "[notice]", 8) == 0)
+		{
+			//공지 메시지 출력
+			textcolor(YELLOW);
+			printf("%s 공지: %s\n", nickName, buffer);
+			textcolor(RESET);
+		}
+		else
+			printf("%s(%d): %s\n", nickName, uid, buffer);
 	}
 
 	// 멀티캐스트 그룹 탈퇴
@@ -244,6 +277,7 @@ DWORD WINAPI ReceiverThread(LPVOID arg)
 
 	return 0;
 }
+
 
 //메인 함수
 int main()
