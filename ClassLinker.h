@@ -1,7 +1,7 @@
-#include <stdio.h>
+ï»¿#include <stdio.h>
 #include <winsock2.h>
 
-//±ÛÀÚ»ö º¯°æÇÒ ¶§ ¼ıÀÚ ´ë½Å »ç¿ë
+//ê¸€ììƒ‰ ë³€ê²½í•  ë•Œ ìˆ«ì ëŒ€ì‹  ì‚¬ìš©
 #define RESET 7
 #define DARK_BLUE 1
 #define DARK_GREEN 2
@@ -20,44 +20,44 @@
 #define WHITE 15
 
 
-//ÇÁ·Î±×·¥ÀÇ ¼³Á¤À» ÀúÀåÇÒ ±¸Á¶Ã¼
+//í”„ë¡œê·¸ë¨ì˜ ì„¤ì •ì„ ì €ì¥í•  êµ¬ì¡°ì²´
 typedef struct settings
 {
-	char execute_mode[7];		//ÇÁ·Î±×·¥ÀÇ ½ÃÀÛ¸ğµå
-	char server_ip[16];			//¼­¹öÀÇ IP ÁÖ¼Ò
-	int server_mainPort;		//¼­¹öÀÇ ÁÖ Æ÷Æ®
-	int server_requestPort;		//¼­¹öÀÇ Ç®¸®Äù Æ÷Æ®
-	int server_uid;				//¼­¹öÀÇ ¾ÆÀÌµğ
-	char server_nickName[50];	//¼­¹öÀÇ ´Ğ³×ÀÓ
-	int client_uid;				//Å¬¶óÀÌ¾ğÆ®ÀÇ ¾ÆÀÌµğ
-	char client_nickName[50];	//Å¬¶óÀÌ¾ğÆ®ÀÇ ´Ğ³×ÀÓ
+	char execute_mode[7];		//í”„ë¡œê·¸ë¨ì˜ ì‹œì‘ëª¨ë“œ
+	char server_ip[16];			//ì„œë²„ì˜ IP ì£¼ì†Œ
+	int server_mainPort;		//ì„œë²„ì˜ ì£¼ í¬íŠ¸
+	int server_requestPort;		//ì„œë²„ì˜ í’€ë¦¬í€˜ í¬íŠ¸
+	int server_uid;				//ì„œë²„ì˜ ì•„ì´ë””
+	char server_nickName[50];	//ì„œë²„ì˜ ë‹‰ë„¤ì„
+	int client_uid;				//í´ë¼ì´ì–¸íŠ¸ì˜ ì•„ì´ë””
+	char client_nickName[50];	//í´ë¼ì´ì–¸íŠ¸ì˜ ë‹‰ë„¤ì„
 }SETTINGS;
 
-/* Console.c ÀÇ ÇÔ¼ö ¸ñ·Ï
+/* Console.c ì˜ í•¨ìˆ˜ ëª©ë¡
 --------------------------------------------*/
-//ÀÔ·Â ¹öÆÛ¸¦ ºñ¿öÁØ´Ù.
+//ì…ë ¥ ë²„í¼ë¥¼ ë¹„ì›Œì¤€ë‹¤.
 void clearInputBuffer();
 
-//ÄÜ¼ÖÀÇ ±ÛÀÚ»öÀ» º¯°æÇÑ´Ù.
+//ì½˜ì†”ì˜ ê¸€ììƒ‰ì„ ë³€ê²½í•œë‹¤.
 int textcolor(unsigned short color_number);
 
-//Ä¿¼­ÀÇ À§Ä¡¸¦ º¯°æÇÑ´Ù.
+//ì»¤ì„œì˜ ìœ„ì¹˜ë¥¼ ë³€ê²½í•œë‹¤.
 int setCursorPos(short x, short y);
 
-//È­¸é ¹öÆÛ Å©±â¸¦ ¼³Á¤ÇÑ´Ù.
+//í™”ë©´ ë²„í¼ í¬ê¸°ë¥¼ ì„¤ì •í•œë‹¤.
 int setScreenBufferSize(short x, short y);
 
 
-/* Error.c ÀÇ ÇÔ¼ö ¸ñ·Ï
+/* Error.c ì˜ í•¨ìˆ˜ ëª©ë¡
 --------------------------------------------*/
-// ¼ÒÄÏ ÇÔ¼ö ¿À·ù Ãâ·Â ÈÄ Á¾·á
+// ì†Œì¼“ í•¨ìˆ˜ ì˜¤ë¥˜ ì¶œë ¥ í›„ ì¢…ë£Œ
 void err_quit(char *msg);
 
-// ¼ÒÄÏ ÇÔ¼ö ¿À·ù Ãâ·Â
+// ì†Œì¼“ í•¨ìˆ˜ ì˜¤ë¥˜ ì¶œë ¥
 void err_display(char *msg);
 
 
-/* File.c ÀÇ ÇÔ¼ö ¸ñ·Ï
+/* File.c ì˜ í•¨ìˆ˜ ëª©ë¡
 --------------------------------------------*/
-//¼³Á¤ÆÄÀÏÀ» ºÒ·¯¿À´Â ÇÔ¼ö
+//ì„¤ì •íŒŒì¼ì„ ë¶ˆëŸ¬ì˜¤ëŠ” í•¨ìˆ˜
 int importSettings(_Out_ SETTINGS *sets);

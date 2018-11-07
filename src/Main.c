@@ -7,7 +7,7 @@
 
 //우리 프로젝트에서 사용할 멀티캐스트 대표IP, PORT번호입니다.
 //이 값은 특별한 일이 없는 한 변하지 않습니다.
-#define MULTICAST_IP "225.0.0.3"
+#define MULTICAST_IP "225.0.0.2"
 #define MULTICAST_PORT 50002
 
 //멀티캐스트 송신 함수
