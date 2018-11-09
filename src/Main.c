@@ -5,10 +5,6 @@
 #include <ws2tcpip.h>
 #include "ClassLinker.h"
 
-//우리 프로젝트에서 사용할 멀티캐스트 대표IP, PORT번호입니다.
-//이 값은 특별한 일이 없는 한 변하지 않습니다.
-#define MULTICAST_IP "225.0.0.2"
-#define MULTICAST_PORT 50002
 
 //멀티캐스트 송신 함수
 DWORD WINAPI SenderThread(LPVOID arg)
@@ -28,15 +24,10 @@ DWORD WINAPI SenderThread(LPVOID arg)
 		uid = ((SETTINGS *)arg)->server_uid;
 		strcpy_s(nickName, sizeof(nickName), ((SETTINGS *)arg)->server_nickName);
 	}
-	else if (strcmp(execute_mode, "client") == 0)
+	else
 	{
 		uid = ((SETTINGS *)arg)->client_uid;
 		strcpy_s(nickName, sizeof(nickName), ((SETTINGS *)arg)->client_nickName);
-	}
-	else
-	{
-		printf("잘못된 실행모드입니다. \n");
-		return 1;
 	}
 
 	// socket()
@@ -54,8 +45,8 @@ DWORD WINAPI SenderThread(LPVOID arg)
 	SOCKADDR_IN remoteaddr;
 	ZeroMemory(&remoteaddr, sizeof(remoteaddr));
 	remoteaddr.sin_family = AF_INET;
-	remoteaddr.sin_addr.s_addr = inet_addr(MULTICAST_IP);
-	remoteaddr.sin_port = htons(MULTICAST_PORT);
+	remoteaddr.sin_addr.s_addr = inet_addr(((SETTINGS *)arg)->multichat_ip);
+	remoteaddr.sin_port = ((SETTINGS *)arg)->multichat_port;
 
 	// 멀티캐스트 데이터 보내기
 	while (1)
@@ -94,13 +85,13 @@ DWORD WINAPI SenderThread(LPVOID arg)
 		retval = sendto(sock, nickName, (int)strlen(nickName) + 1, 0, (SOCKADDR *)&remoteaddr, sizeof(remoteaddr));
 		if (retval == SOCKET_ERROR)
 		{
-			err_display("아이디 sendto()");
+			err_display("닉네임 sendto()");
 			break;
 		}
 		retval = sendto(sock, buffer, (int)strlen(buffer) + 1, 0, (SOCKADDR *)&remoteaddr, sizeof(remoteaddr));
 		if (retval == SOCKET_ERROR)
 		{
-			err_display("아이디 sendto()");
+			err_display("데이터 sendto()");
 			break;
 		}
 	}
@@ -108,6 +99,7 @@ DWORD WINAPI SenderThread(LPVOID arg)
 	// closesocket()
 	closesocket(sock);
 
+	printf("SenderThread() 종료. \n");
 	return 0;
 }
 
@@ -137,14 +129,14 @@ DWORD WINAPI ReceiverThread(LPVOID arg)
 	ZeroMemory(&localaddr, sizeof(localaddr));
 	localaddr.sin_family = AF_INET;
 	localaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	localaddr.sin_port = htons(MULTICAST_PORT);
+	localaddr.sin_port = ((SETTINGS *)arg)->multichat_port;
 	retval = bind(sock, (SOCKADDR *)&localaddr, sizeof(localaddr));
 	if (retval == SOCKET_ERROR)
 		err_quit("bind()");
 
 	// 멀티캐스트 그룹 가입
 	struct ip_mreq mreq;
-	mreq.imr_multiaddr.s_addr = inet_addr(MULTICAST_IP);
+	mreq.imr_multiaddr.s_addr = inet_addr(((SETTINGS *)arg)->multichat_ip);
 	mreq.imr_interface.s_addr = htonl(INADDR_ANY);
 	retval = setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&mreq, sizeof(mreq));
 	if (retval == SOCKET_ERROR)
@@ -176,7 +168,7 @@ DWORD WINAPI ReceiverThread(LPVOID arg)
 			break;
 		}
 
-		//받은 파일을 검사한다
+		//받은 메시지가 공지인지 아닌지 검사한다.
 		if (strncmp(buffer, "[notice]", 8) == 0)
 		{
 			//공지 메시지 출력
@@ -185,7 +177,11 @@ DWORD WINAPI ReceiverThread(LPVOID arg)
 			textcolor(RESET);
 		}
 		else
+		{
+			textcolor(WHITE);
 			printf("%s(%d): %s\n", nickName, uid, buffer);
+			textcolor(RESET);
+		}
 	}
 
 	// 멀티캐스트 그룹 탈퇴
@@ -196,6 +192,7 @@ DWORD WINAPI ReceiverThread(LPVOID arg)
 	// closesocket()
 	closesocket(sock);
 
+	printf("ReceiverThread() 종료. \n");
 	return 0;
 }
 
@@ -217,18 +214,42 @@ int main()
 	SETTINGS sets;
 	retval = importSettings(&sets);
 	if (retval != 0)
+	{
+		textcolor(YELLOW);
+		printf("설정파일이 누락되어 있습니다. \n");
+		printf("설정파일을 복구해주세요. \n");
+		textcolor(RESET);
+		system("pause");
 		return 1;
+	}
+
+	//서버 또는 클라이언트 멀티채팅을 시작한다고 알린다.
+	if (strcmp(sets.execute_mode, "server") == 0)
+	{
+		textcolor(SKY_BLUE);
+		printf("서버 멀티채팅을 시작합니다. \n\n");
+		textcolor(RESET);
+	}
+	else if (strcmp(sets.execute_mode, "client") == 0)
+	{
+		textcolor(SKY_BLUE);
+		printf("클라이언트 멀티채팅을 시작합니다. \n\n");
+		textcolor(RESET);
+	}
+	else
+	{
+		textcolor(YELLOW);
+		printf("잘못된 실행모드입니다. \n");
+		textcolor(RESET);
+		system("pause");
+		return 1;
+	}
 
 	//스레드 실행
 	//sendNotice 함수에 매개변수로 구조체 전달해야 함
 	HANDLE hThreads[2];
 	hThreads[0] = CreateThread(NULL, 0, SenderThread, &sets, 0, NULL);
 	hThreads[1] = CreateThread(NULL, 0, ReceiverThread, &sets, 0, NULL);
-
-	//멀티채팅 서비스를 시작한다고 알린다.
-	textcolor(SKY_BLUE);
-	printf("멀티채팅 서비스를 시작합니다. \n");
-	textcolor(RESET);
 
 	//스레드가 종료될 때까지 대기한다.
 	WaitForMultipleObjects(2, hThreads, FALSE, INFINITE);

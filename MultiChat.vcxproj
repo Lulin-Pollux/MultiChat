@@ -26,6 +26,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ClassLinker.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="MultiChat.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\Multi Chat.ico" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

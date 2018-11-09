@@ -1,7 +1,4 @@
-﻿#include <stdio.h>
-#include <winsock2.h>
-
-//글자색 변경할 때 숫자 대신 사용
+﻿//글자색 변경할 때 숫자 대신 사용
 #define RESET 7
 #define DARK_BLUE 1
 #define DARK_GREEN 2
@@ -19,7 +16,6 @@
 #define YELLOW 14
 #define WHITE 15
 
-
 //프로그램의 설정을 저장할 구조체
 typedef struct settings
 {
@@ -27,11 +23,14 @@ typedef struct settings
 	char server_ip[16];			//서버의 IP 주소
 	int server_mainPort;		//서버의 주 포트
 	int server_requestPort;		//서버의 풀리퀘 포트
+	char multichat_ip[16];		//멀티채팅 IP 주소
+	int multichat_port;			//멀티채팅 포트
 	int server_uid;				//서버의 아이디
 	char server_nickName[50];	//서버의 닉네임
 	int client_uid;				//클라이언트의 아이디
 	char client_nickName[50];	//클라이언트의 닉네임
 }SETTINGS;
+
 
 /* Console.c 의 함수 목록
 --------------------------------------------*/
