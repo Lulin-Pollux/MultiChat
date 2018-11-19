@@ -246,7 +246,6 @@ int main()
 	}
 
 	//스레드 실행
-	//sendNotice 함수에 매개변수로 구조체 전달해야 함
 	HANDLE hThreads[2];
 	hThreads[0] = CreateThread(NULL, 0, SenderThread, &sets, 0, NULL);
 	hThreads[1] = CreateThread(NULL, 0, ReceiverThread, &sets, 0, NULL);
